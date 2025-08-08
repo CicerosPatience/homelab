@@ -1,4 +1,4 @@
-budget.styves.io {
+budget.{env.DOMAIN_NAME} {
         tls {
                  dns cloudflare {env.CLOUDFLARE_API_TOKEN}
         }
