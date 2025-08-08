@@ -1,9 +1,9 @@
 budget.{env.DOMAIN_NAME} {
-        tls {
-                 dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-        }
+    reverse_proxy {env.CLUSTER_IP}:{env.ACTUAL_BUDGET_PORT}
 
-        reverse_proxy {env.CLUSTER_IP}:{env.ACTUAL_BUDGET_PORT}
+    encode gzip
 
-        encode gzip
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
 }
