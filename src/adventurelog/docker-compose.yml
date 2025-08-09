@@ -33,9 +33,11 @@ volumes:
       type: 'none'
       o: 'bind'
       device: ${APPDATA_LOCATION}/postgres
+    external: true
   adventurelog_media:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
       device: ${APPDATA_LOCATION}/media
+    external: true
