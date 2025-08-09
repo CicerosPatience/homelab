@@ -1,0 +1,14 @@
+adventurelog.{env.DOMAIN_NAME} {
+    @frontend {
+        not path /media* /admin* /static* /accounts*
+    }
+    reverse_proxy @frontend {env.CLUSTER_IP}:{env.ADVENTURELOG_FRONTEND_PORT}
+
+    reverse_proxy {env.CLUSTER_IP}:{env.ADVENTURELOG_BACKEND_PORT}
+
+    encode gzip
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
