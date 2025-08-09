@@ -3,8 +3,11 @@ services:
     image: ghcr.io/seanmorley15/adventurelog-frontend:latest
     container_name: adventurelog_frontend
     restart: unless-stopped
+    environment:
+      PUBLIC_SERVER_URL: http://server:8000
+      ORIGIN: ${ORIGIN}
     ports:
-      - ${FRONTEND_PORT}:3000
+      - ${FRONTEND_EXPOSED_PORT}:3000
     depends_on:
       - server
 
@@ -12,6 +15,10 @@ services:
     image: postgis/postgis:16-3.5
     container_name: adventurelog_db
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
@@ -19,8 +26,20 @@ services:
     image: ghcr.io/seanmorley15/adventurelog-backend:latest
     container_name: adventurelog_backend
     restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      DJANGO_ADMIN_USERNAME: ${DJANGO_USERNAME}
+      DJANGO_ADMIN_PASSWORD: ${DJANGO_PASSWORD}
+      DJANGO_ADMIN_EMAIL: ${DJANGO_EMAIL}
+      PUBLIC_URL: https://adventurelog.${DOMAIN_NAME}
+      CSRF_TRUSTED_ORIGINS: https://adventurelog.${DOMAIN_NAME}
+      FRONTEND_URL: https://adventurelog.${DOMAIN_NAME}
     ports:
-      - ${BACKEND_PORT}:80
+      - ${BACKEND_EXPOSED_PORT}:80
     depends_on:
       - db
     volumes:
