@@ -1,0 +1,41 @@
+services:
+  web:
+    image: ghcr.io/seanmorley15/adventurelog-frontend:latest
+    container_name: adventurelog_frontend
+    restart: unless-stopped
+    ports:
+      - ${FRONTEND_PORT}:3000
+    depends_on:
+      - server
+
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: adventurelog_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  server:
+    image: ghcr.io/seanmorley15/adventurelog-backend:latest
+    container_name: adventurelog_backend
+    restart: unless-stopped
+    ports:
+      - ${BACKEND_PORT}:80
+    depends_on:
+      - db
+    volumes:
+      - adventurelog_media:/code/media/
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/postgres
+  adventurelog_media:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/media
