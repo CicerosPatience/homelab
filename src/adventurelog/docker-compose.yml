@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       PUBLIC_SERVER_URL: http://server:8000
-      ORIGIN: ${ORIGIN}
+      ORIGIN: https://adventurelog.${DOMAIN_NAME}
     ports:
       - ${FRONTEND_EXPOSED_PORT}:3000
     depends_on:
