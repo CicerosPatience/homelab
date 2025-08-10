@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/seanmorley15/adventurelog-frontend:latest
+    image: ghcr.io/seanmorley15/adventurelog-frontend:v0.10.0
     container_name: adventurelog_frontend
     restart: unless-stopped
     environment:
@@ -23,7 +23,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
 
   server:
-    image: ghcr.io/seanmorley15/adventurelog-backend:latest
+    image: ghcr.io/seanmorley15/adventurelog-backend:v0.10.0
     container_name: adventurelog_backend
     restart: unless-stopped
     environment:
