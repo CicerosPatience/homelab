@@ -1,0 +1,7 @@
+dns.{env.DOMAIN_NAME} {
+    reverse_proxy {env.TECHNITIUM_DNS_IP}
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
