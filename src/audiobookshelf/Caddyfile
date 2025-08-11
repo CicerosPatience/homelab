@@ -1,0 +1,9 @@
+audiobookshelf.{env.DOMAIN_NAME} {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+
+    reverse_proxy {env.CLUSTER_IP}:{env.AUDIOBOOKSHELF_PORT}
+
+    encode gzip
+}
