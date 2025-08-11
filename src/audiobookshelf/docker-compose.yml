@@ -1,0 +1,22 @@
+services:
+  audiobookshelf:
+    container_name: audiobookshelf
+    image: advplyr/audiobookshelf:2.26.3
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    mem_limit: 4g
+    cpu_shares: 768
+    security_opt:
+      - no-new-privileges:true
+    restart: on-failure:5
+    ports:
+      - ${EXPOSE_PORT}:80
+    volumes:
+      - ${APPDATA_LOCATION}:/config:rw
+      - ${MEDIA_LOCATION}/books:/audiobooks:rw
+      - ${MEDIA_LOCATION}/podcasts:/podcasts:rw
+      - ${APPDATA_LOCATION}/metadata:/metadata:rw
