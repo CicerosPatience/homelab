@@ -13,7 +13,7 @@ services:
     image: rustdesk/rustdesk-server
     command: hbbs -r yourname.synology.me:21117
     volumes:
-      - /volume1/docker/rustdeskhbbs:/root:rw
+      - ${APPDATA_LOCATION}/rustdeskhbbs:/root:rw
     networks:
       - rustdesk-net
     depends_on:
@@ -28,7 +28,7 @@ services:
     image: rustdesk/rustdesk-server
     command: hbbr
     volumes:
-      - /volume1/docker/rustdeskhbbr:/root:rw
+      - ${APPDATA_LOCATION}/rustdeskhbbr:/root:rw
     networks:
       - rustdesk-net
     restart: on-failure:5
