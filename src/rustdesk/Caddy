@@ -19,7 +19,7 @@
 	header @origin Access-Control-Allow-Methods "OPTIONS,GET,POST"
 }
 
-rustdesk.styves.io {
+rustdesk.{env.DOMAIN_NAME} {
 	# Put reverse proxy to same route to import shared header
 	route {
 		import header_common
