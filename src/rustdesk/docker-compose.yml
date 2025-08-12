@@ -11,7 +11,7 @@ services:
       - 21116:21116/udp
       - 21118:21118
     image: rustdesk/rustdesk-server:latest
-    command: hbbs -r yourname.synology.me:21117
+    command: hbbs -r rustdesk.${DOMAIN_NAME}:21117
     volumes:
       - ${APPDATA_LOCATION}/rustdeskhbbs:/root:rw
     networks:
