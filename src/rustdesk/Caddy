@@ -1,0 +1,43 @@
+(header_common) {
+	header {
+		# HSTS, very recommend to enable, for details, check https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security
+		# Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+		Content-Security-Policy "base-uri 'self';"
+		X-Frame-Options "SAMEORIGIN"
+		X-XSS-Protection "1; mode=block"
+		# Remove reverse proxy header
+		-Server
+		-via
+	}
+}
+
+(cors) {
+	@origin header Origin {args[0]}
+	header @origin Access-Control-Allow-Origin "{args[0]}"
+	header @origin Access-Control-Allow-Methods "OPTIONS,GET,POST"
+}
+
+rustdesk.{env.DOMAIN_NAME} {
+	# Put reverse proxy to same route to import shared header
+	route {
+		import header_common
+		import cors rustdesk.com
+		encode zstd gzip
+
+		# ID Server
+		reverse_proxy /ws/id {env.CLUSTER_IP}:21118 {
+			transport http {
+				read_timeout 120s
+			}
+		}
+
+		# Relay Server
+		reverse_proxy /ws/relay {env.CLUSTER_IP}:21119 {
+			transport http {
+				read_timeout 120s
+			}
+		}
+	}
+}
