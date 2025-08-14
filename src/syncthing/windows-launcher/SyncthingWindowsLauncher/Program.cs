@@ -21,7 +21,7 @@ var processInfo = new ProcessStartInfo
     FileName = program,
     WorkingDirectory = Path.GetDirectoryName(program),
     Arguments = string.Join(" ", arguments[2..]),
-    CreateNoWindow = arguments.Contains("--no-console") ? true : false,
+    CreateNoWindow = arguments.Contains("--no-console"),
     WindowStyle = ProcessWindowStyle.Hidden,
     UseShellExecute = false
 };
