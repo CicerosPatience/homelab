@@ -1,0 +1,9 @@
+vpndash.{env.DOMAIN_NAME} {
+    reverse_proxy {env.WIREGUARD_IP}:{env.WIREGUARD_DASHBOARD_PORT}
+
+    encode gzip
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
