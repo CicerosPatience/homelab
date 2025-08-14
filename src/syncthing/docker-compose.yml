@@ -21,4 +21,4 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${APPDATA_LOCATION}/sync
+      device: ${APPDATA_LOCATION}/syncthing
