@@ -7,10 +7,18 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - ${APPDATA_LOCATION}/syncthing:/var/syncthing:rw
+      - data:/var/syncthing:rw
     restart: unless-stopped
     healthcheck:
       test: curl -fkLsS -m 2 127.0.0.1:8384/rest/noauth/health | grep -o --color=never OK || exit 1
       interval: 1m
       timeout: 10s
       retries: 3
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/syncthing
