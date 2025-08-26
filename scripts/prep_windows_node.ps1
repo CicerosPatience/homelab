@@ -1,5 +1,4 @@
-# RUN AS ADMIN 
-#Before running ensure that PowerShell 7 is installed
+# Before running ensure that PowerShell 7 is installed
 # https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.5
 # winget install --id Microsoft.PowerShell --source winget 
 
@@ -35,8 +34,9 @@ New-ItemProperty @shellParams
 
 Write-Output "✅ Default SSH Shell set to PowerShell 7."
 
-# --- Interactive WSL2 Setup ---
-$wslInput = Read-Host "`n🐧 Setup control node in WSL2? (Yes/No)"
+# --- WSL2 Setup ---
+# Ensure that WSL2 is ready if we need a control node
+$wslInput = Read-Host "`n🐧 Setup WSL2? (Yes/No)"
 if ($wslInput.Trim().ToLower() -eq 'yes' -or $wslInput.Trim().ToLower() -eq 'y') {
     Write-Output "🚀 Setting up WSL2..."
 
@@ -44,8 +44,6 @@ if ($wslInput.Trim().ToLower() -eq 'yes' -or $wslInput.Trim().ToLower() -eq 'y')
 
     Write-Output "✅ WSL2 installed."
     Write-Output "👉 Launch Ubuntu from Start Menu or run 'wsl' to complete first-time setup (create user/password)."
-    
-    wsl -e ./prep_wsl2_control_node.sh
 
 } else {
     Write-Output "ℹ️ WSL installation skipped."
