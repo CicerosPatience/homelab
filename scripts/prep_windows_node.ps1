@@ -8,9 +8,9 @@ param (
     [Security.SecureString]$AnsibleUserPassword
 )
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # Creat new `ansible` user account and add to Admin group
-# -----------------------------------------------------------------------
+# =======================================================================
 Write-Host "🔄 Creating new 'ansible' user..."
 
 $ansibleUser = @{
@@ -42,9 +42,9 @@ else
     Write-Output "ℹ️ No Change: 'ansible' user already in the Administrators group."
 }
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # OpenSSH Setup
-# -----------------------------------------------------------------------
+# =======================================================================
 Write-Host "🔄 Setting up OpenSSH..."
 
 Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
@@ -97,12 +97,12 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
     Write-Output "ℹ️ No Change: Firewall rule 'OpenSSH-Server-In-TCP' already exists."
 }
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # OpenSSH Configuration
 #
 # ✅ Set default SSH shell to PowerShell 7
 # ✅ Configure SSH authorized key files.
-# -----------------------------------------------------------------------
+# =======================================================================
 
 $regPath  = 'HKLM:\SOFTWARE\OpenSSH'
 $regName  = 'DefaultShell'
@@ -143,11 +143,11 @@ if (-not (Test-Path $authKeysFile)) {
     Write-Host "ℹ️ No Change: 'administrators_authorized_keys' already exists."
 }
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # WSL2 Setup
 # 
 # OPTIONAL - Ensure that WSL2 is ready if we need a control node
-# -----------------------------------------------------------------------
+# =======================================================================
 
 $wslInput = Read-Host "`n🐧 Setup WSL2? (Yes/No)"
 if ($wslInput.Trim().ToLower() -eq 'yes' -or $wslInput.Trim().ToLower() -eq 'y') {

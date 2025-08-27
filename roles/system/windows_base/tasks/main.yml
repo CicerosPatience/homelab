@@ -19,37 +19,34 @@
   loop: "{{ users_to_rename }}"
   notify: Reboot Windows
 
-# - name: Get SID and current profile path
-#   ansible.windows.win_powershell:
-#     script: |
-#       $uName = "{{ old_username }}"
-#       $sid = (Get-LocalUser -Name $uName).Sid.Value
-#       $profKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
-#       $prof = Get-ItemProperty -Path $profKey
-#       [pscustomobject]@{
-#         SID = $sid
-#         CurrentProfilePath = $prof.ProfileImagePath
-#       }
-#   register: user_info
+- name: Rename profile folder on disk
+  ansible.windows.win_powershell:
+    script: |
+      $username = "{{ item.new_username }}"
+      $sid = (Get-LocalUser -Name $username).Sid.Value
+      $profKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
+      $profilePath = (Get-ItemProperty -Path $profKey).ProfileImagePath
+      $newProfilePath = "{{ users_root }}\\{{ $username }}"
 
-# - name: Set facts
-#   ansible.builtin.set_fact:
-#     target_sid: "{{ user_info.output[0].SID }}"
-#     current_profile_path: "{{ user_info.output[0].CurrentProfilePath }}"
-#     new_profile_path: "{{ users_root }}\\{{ new_username }}"
+      if ($profilePath -ne $newProfilePath) {
+        Write-Output "renamed"
+      }
+      else {
+        Write-Output "not renamed"
+      }
+  register: profile_folder_rename_result
+  changed_when: rename_result.output[0] == "renamed"
+  loop: "{{ users_to_rename }}"
+  notify: Reboot Windows
 
-# - name: Rename profile folder on disk
-#   ansible.windows.win_powershell:
-#     script: |
-#       Rename-Item -LiteralPath "{{ current_profile_path }}" -NewName "{{ new_username }}"
-#   when: current_profile_path | lower != new_profile_path | lower
-
-# - name: Update registry ProfileImagePath
-#   ansible.windows.win_regedit:
-#     path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\{{ target_sid }}"
-#     name: "ProfileImagePath"
-#     data: "{{ new_profile_path }}"
-#     type: string
+- name: Update registry ProfileImagePath
+  ansible.windows.win_regedit:
+    path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\{{ target_sid }}"
+    name: "ProfileImagePath"
+    data: "{{ new_profile_path }}"
+    type: string
+  notify: Reboot Windows
+  loop: "{{ users_to_rename }}"
 
 # - name: Fix ACLs on new profile folder
 #   ansible.windows.win_powershell:
