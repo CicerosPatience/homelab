@@ -2,8 +2,8 @@
 - name: Rename user
   ansible.windows.win_powershell:
     script: |
-      $currentUsername = "{{ current_username }}"
-      $newUsername = "{{ new_username }}"
+      $currentUsername = "{{ item.current_username }}"
+      $newUsername = "{{ item.new_username }}"
 
       $currentUser = Get-LocalUser -Name $currentUsername -ErrorAction SilentlyContinue
       $newUser = Get-LocalUser -Name $newUsername -ErrorAction SilentlyContinue
@@ -16,6 +16,8 @@
       }
   register: rename_result
   changed_when: rename_result.output[0] == "renamed"
+  loop: "{{ users_to_rename }}"
+  notify: Reboot Windows
 
 # - name: Get SID and current profile path
 #   ansible.windows.win_powershell:
@@ -56,3 +58,6 @@
 #       $user = "{{ new_username }}"
 #       & takeown.exe /F $path /R /D Y | Out-Null
 #       icacls $path /grant:r "$env:COMPUTERNAME\$user:(OI)(CI)(F)" /T | Out-Null
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
