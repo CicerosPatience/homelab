@@ -1,0 +1,8 @@
+windows:
+  hosts:
+    zues:
+      ansible_host: zues.olympus
+      ansible_user: ansible
+  vars:
+    ansible_connection: ssh
+    ansible_shell_type: powershell

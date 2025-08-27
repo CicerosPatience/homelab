@@ -1,0 +1,10 @@
+---
+- name: Configure Zues
+  hosts: zues
+  gather_facts: true
+
+  roles:
+  - role: system/windows/rename_user
+    vars:
+      current_username: astyv
+      new_username: andrew

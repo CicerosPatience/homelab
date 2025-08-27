@@ -1,0 +1,58 @@
+---
+- name: Rename user
+  ansible.windows.win_powershell:
+    script: |
+      $currentUsername = "{{ current_username }}"
+      $newUsername = "{{ new_username }}"
+
+      $currentUser = Get-LocalUser -Name $currentUsername -ErrorAction SilentlyContinue
+      $newUser = Get-LocalUser -Name $newUsername -ErrorAction SilentlyContinue
+
+      if ($currentUser -ne $null -and $newUser -eq $null) {
+        Write-Output "renamed"
+      }
+      else {
+        Write-Output "not renamed"
+      }
+  register: rename_result
+  changed_when: rename_result.output[0] == "renamed"
+
+# - name: Get SID and current profile path
+#   ansible.windows.win_powershell:
+#     script: |
+#       $uName = "{{ old_username }}"
+#       $sid = (Get-LocalUser -Name $uName).Sid.Value
+#       $profKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
+#       $prof = Get-ItemProperty -Path $profKey
+#       [pscustomobject]@{
+#         SID = $sid
+#         CurrentProfilePath = $prof.ProfileImagePath
+#       }
+#   register: user_info
+
+# - name: Set facts
+#   ansible.builtin.set_fact:
+#     target_sid: "{{ user_info.output[0].SID }}"
+#     current_profile_path: "{{ user_info.output[0].CurrentProfilePath }}"
+#     new_profile_path: "{{ users_root }}\\{{ new_username }}"
+
+# - name: Rename profile folder on disk
+#   ansible.windows.win_powershell:
+#     script: |
+#       Rename-Item -LiteralPath "{{ current_profile_path }}" -NewName "{{ new_username }}"
+#   when: current_profile_path | lower != new_profile_path | lower
+
+# - name: Update registry ProfileImagePath
+#   ansible.windows.win_regedit:
+#     path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\{{ target_sid }}"
+#     name: "ProfileImagePath"
+#     data: "{{ new_profile_path }}"
+#     type: string
+
+# - name: Fix ACLs on new profile folder
+#   ansible.windows.win_powershell:
+#     script: |
+#       $path = "{{ new_profile_path }}"
+#       $user = "{{ new_username }}"
+#       & takeown.exe /F $path /R /D Y | Out-Null
+#       icacls $path /grant:r "$env:COMPUTERNAME\$user:(OI)(CI)(F)" /T | Out-Null
