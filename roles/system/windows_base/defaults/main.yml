@@ -1,4 +1,5 @@
 # defaults file for roles/system/windows_base
+---
 hostname: ansible
 
 users_to_rename:

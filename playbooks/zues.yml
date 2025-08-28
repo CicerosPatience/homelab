@@ -10,3 +10,4 @@
       users_to_rename:
       - old_username: 'astyv'
         new_username: 'andrew'
+  - role: apps/syncthing_windows
