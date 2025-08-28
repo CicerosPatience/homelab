@@ -1,0 +1,119 @@
+- name: Set the computer hostname
+  win_hostname:
+    name: "{{ hostname }}"
+  notify: Reboot Windows
+
+- name: Rename user
+  ansible.windows.win_powershell:
+    script: |
+      $oldUsername = "{{ item.old_username }}"
+      $newUsername = "{{ item.new_username }}"
+
+      $oldUser = Get-LocalUser -Name $oldUsername -ErrorAction SilentlyContinue
+      $newUser = Get-LocalUser -Name $newUsername -ErrorAction SilentlyContinue
+
+      $renamed = $false
+
+      if ($oldUser -ne $null -and $newUser -eq $null) {
+        Rename-LocalUser -Name "$oldUsername" -NewName "$newUsername"
+        $renamed = $true 
+      }
+
+      Write-Output @{
+        old_username = $oldUsername
+        new_username = $newUsername
+        renamed = $renamed
+      }
+  register: windows_base_rename_user_result
+  changed_when: windows_base_rename_user_result.output[0].renamed == "true"
+  loop: "{{ users_to_rename }}"
+  notify: Reboot Windows
+
+#========================================================
+# DANGER: NEEDS MANUAL VALIDATION
+#=========================================================
+
+# - name: Get profile facts
+#   ansible.windows.win_powershell:
+#     script: |
+#       $profile = @{
+#         exists = (Get-LocalUser -Name "{{ item.new_username }}" -ErrorAction Ignore) -as [bool]
+#         username = $null
+#         sid = $null
+#         profile_reg_key = $null
+#         old_path = $null
+#         new_path = $null
+#       }
+
+#       if ($profile.exists)
+#       {
+#         $profile.username = "{{ item.new_username }}"
+#         $profile.sid = (Get-LocalUser -Name $profile.username).Sid.Value
+#         $profile.profile_reg_key = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
+#         $profile.old_path = (Get-ItemProperty -Path $profile.profile_reg_key).ProfileImagePath    
+        
+#         $parentProfilePath = Split-Path -Path $profile.old_path -Parent
+#         $profile.new_path = Join-Path -Path $parentProfilePath -ChildPath $profile.username
+#       }
+
+#       Write-Output $profile
+#   register: windows_base_profile_facts
+#   loop: "{{ users_to_rename }}"
+#   changed_when: false
+#   check_mode: false
+
+# - name: Rename profile folder on disk
+#   ansible.windows.win_powershell:
+#     script: |
+#       $result = @{
+#         old_path = "{{ item.old_path }}"
+#         new_path = "{{ item.new_path }}"
+#         renamed = $false
+#       }
+
+#       if ($result.old_path -ne $result.new_path)
+#       {
+#         Rename-Item -Path $result.old_path -NewName $result.new_path
+#         $result.renamed = $true
+#       }
+
+#       Write-Output $result
+#   register: windows_profile_folder_rename_result
+#   changed_when: windows_profile_folder_rename_result.output[0].renamed == "true"
+#   when: item.exists
+#   loop: "{{ windows_base_profile_facts.results | map(attribute='output') | list | flatten }}"
+#   notify: Reboot Windows
+
+# - name: Update registry ProfileImagePath
+#   ansible.windows.win_regedit:
+#     path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\{{ item.sid }}"
+#     name: "ProfileImagePath"
+#     data: "{{ item.new_path }}"
+#     type: string
+#   when: item.exists
+#   loop: "{{ windows_base_profile_facts.results | map(attribute='output') | list | flatten }}"
+#   check_mode: true
+#   notify: Reboot Windows
+
+#========================================================
+# END OF DANGER
+#=========================================================
+
+- name: Ensure DNS global suffix list is set
+  ansible.windows.win_powershell:
+    script: |
+      $result = @{
+        changed = $false
+      }
+
+      $suffixes = @("olympus")
+      $current = (Get-DnsClientGlobalSetting).SuffixSearchList
+
+      if (-not (Compare-Object $suffixes $current)) {
+          Set-DnsClientGlobalSetting -SuffixSearchList $suffixes
+          $result.changed = $true
+      }
+
+      Write-Output $result
+  register: windows_base_set_dns_suffix_list_result
+  changed_when: windows_base_set_dns_suffix_list_result.output[0].changed == "true"

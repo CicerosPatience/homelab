@@ -2,11 +2,49 @@
 # https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.5
 # winget install --id Microsoft.PowerShell --source winget 
 
-# -----------------------------------------------------------------------
+param (
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [Security.SecureString]$AnsibleUserPassword
+)
+
+# =======================================================================
+# Creat new `ansible` user account and add to Admin group
+# =======================================================================
+Write-Host "🔄 Creating new 'ansible' user..."
+
+$ansibleUser = @{
+    Name        = 'ansible'
+    Password    = $AnsibleUserPassword
+    FullName    = 'Ansible'
+    Description = 'Default account used by Ansible during a play.'
+}
+
+$user = Get-LocalUser -Name $ansibleUser.Name -ErrorAction SilentlyContinue
+
+if (-not $user) {
+    New-LocalUser @ansibleUser
+    Write-Output "✅ 'ansible' user created."
+}
+else
+{
+    Write-Output "ℹ️ No Change: 'ansible' user already exists."
+}
+
+$isAdmin = Get-LocalGroupMember -Group "Administrators" -Member $ansibleUser.Name -ErrorAction SilentlyContinue
+
+if (-not $isAdmin) {
+    Add-LocalGroupMember -Group "Administrators" -Member $ansibleUser.Name
+    Write-Output "✅ 'ansible' user added to Administrators group."
+}
+else
+{
+    Write-Output "ℹ️ No Change: 'ansible' user already in the Administrators group."
+}
+
+# =======================================================================
 # OpenSSH Setup
-#
-# REQUIRED - Configure OpenSSH for Windows
-# -----------------------------------------------------------------------
+# =======================================================================
 Write-Host "🔄 Setting up OpenSSH..."
 
 Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
@@ -25,7 +63,7 @@ if (Get-Service -Name sshd -ErrorAction SilentlyContinue) {
     }
     else
     {
-        Write-Output "ℹ️ sshd already running."
+        Write-Output "ℹ️ No Change: sshd already running."
     }
 
     $startupType = (Get-WmiObject -Class Win32_Service -Filter "Name='sshd'").StartMode
@@ -35,12 +73,13 @@ if (Get-Service -Name sshd -ErrorAction SilentlyContinue) {
     }
     else 
     {
-        Write-Output "ℹ️ sshd service auto start already configured."
+        Write-Output "ℹ️ No Change: sshd service auto start already configured."
     }
 
 
 } else {
     Write-Host "❌ sshd service not found."
+    exit 1
 }
 
 
@@ -55,15 +94,15 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
 
     Write-Output "✅ Firewall rules configured."
 } else {
-    Write-Output "ℹ️ Firewall rule 'OpenSSH-Server-In-TCP' already exists. No change needed."
+    Write-Output "ℹ️ No Change: Firewall rule 'OpenSSH-Server-In-TCP' already exists."
 }
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # OpenSSH Configuration
 #
 # ✅ Set default SSH shell to PowerShell 7
 # ✅ Configure SSH authorized key files.
-# -----------------------------------------------------------------------
+# =======================================================================
 
 $regPath  = 'HKLM:\SOFTWARE\OpenSSH'
 $regName  = 'DefaultShell'
@@ -83,7 +122,7 @@ if ($currentValue -ne $newValue) {
     Set-ItemProperty -Path $regPath -Name $regName -Value $newValue
     Write-Output "✅ Default SSH Shell set to PowerShell 7."
 } else {
-    Write-Output "ℹ️ Default SSH Shell is already set to PowerShell 7. No change needed."
+    Write-Output "ℹ️ No Change: default SSH Shell is already set to PowerShell 7."
 }
 
 # create administrators_authorized_keys if not exists
@@ -101,14 +140,14 @@ if (-not (Test-Path $authKeysFile)) {
 
     Write-Output "✅ SSH authorized key files ready."
 } else {
-    Write-Host "ℹ️ administrators_authorized_keys already exists."
+    Write-Host "ℹ️ No Change: 'administrators_authorized_keys' already exists."
 }
 
-# -----------------------------------------------------------------------
+# =======================================================================
 # WSL2 Setup
 # 
 # OPTIONAL - Ensure that WSL2 is ready if we need a control node
-# -----------------------------------------------------------------------
+# =======================================================================
 
 $wslInput = Read-Host "`n🐧 Setup WSL2? (Yes/No)"
 if ($wslInput.Trim().ToLower() -eq 'yes' -or $wslInput.Trim().ToLower() -eq 'y') {
