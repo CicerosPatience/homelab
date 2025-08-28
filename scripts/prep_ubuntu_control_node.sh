@@ -23,6 +23,12 @@ echo "✅ Ansible installation completed."
 ansible --version
 
 # =======================================
+# Install git
+# =======================================
+
+sudo apt install git
+
+# =======================================
 # SSH Key setup
 # =======================================
 
@@ -37,3 +43,5 @@ else
 fi
 echo "Private key: $SSH_KEY"
 echo "Public key : ${SSH_KEY}.pub"
+
+cat "${SSH_KEY}.pub"

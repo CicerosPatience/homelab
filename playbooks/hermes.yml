@@ -1,6 +1,6 @@
 ---
-- name: Configure Zues
-  hosts: zues
+- name: Configure Hermes
+  hosts: hermes
   gather_facts: true
 
   roles:
