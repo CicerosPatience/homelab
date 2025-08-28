@@ -1,3 +1,8 @@
+- name: Set the computer hostname
+  win_hostname:
+    name: "{{ hostname }}"
+  notify: Reboot Windows
+
 - name: Rename user
   ansible.windows.win_powershell:
     script: |
@@ -93,9 +98,6 @@
 #========================================================
 # END OF DANGER
 #=========================================================
-
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
 
 - name: Ensure DNS global suffix list is set
   ansible.windows.win_powershell:
