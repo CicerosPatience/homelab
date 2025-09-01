@@ -124,6 +124,11 @@
 # END OF DANGER
 # =====================================================================
 
+# force a reboot here if neccessary
+# some tasks downstream expect the correct (new) username
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
 # =====================================================================
 # Configure PSModules
 # =====================================================================
