@@ -2,6 +2,9 @@
 ---
 hostname: ansible
 
-users_to_rename:
-  - old_username: 'ansible'
-    new_username: 'ansible'
+users:
+- username: 'ansible'
+  renamed_from: 'ansible'
+  groups:
+    - Administrators
+

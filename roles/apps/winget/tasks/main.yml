@@ -1,0 +1,53 @@
+# =====================================================================
+# Install, update or remove winget apps
+# Note: apps with more complex installations should get unique roles
+# =====================================================================
+---
+- name: "{{ (state == 'present') | ternary('Install or update', 'Uninstall') }} package"
+  ansible.windows.win_powershell:
+    script: |
+      $output = @{
+        status = "NoRun"
+        reboot_required = $false
+      }
+
+      $app = "{{ id }}"
+      $package = Get-WinGetPackage -Id $app
+      
+      if (-not $package) {
+        $output.status = "PackageNotInstalled"
+
+        if ("{{ state }}" -eq "present") {
+          $result = Install-WinGetPackage -Id $app -Source "winget" -Mode Silent
+          $output.status = $result.Status
+          $output.reboot_required = $result.RebootRequired
+        }
+      } 
+      elseif ("{{ state }}" -eq "present") {
+        $result = Update-WinGetPackage -Id $app -Source "winget" -Mode Silent
+        $output.status = $result.Status
+        $output.reboot_required = $result.RebootRequired
+      }
+      elseif ("{{ state }}" -eq "absent") {
+        $result = Uninstall-WinGetPackage -Id $app -Source "winget" -Mode Silent
+        $output.status = $result.Status
+        $output.reboot_required = $result.RebootRequired
+      }
+
+      Write-Output $output
+  register: winget_result
+  changed_when: 
+    - (winget_result.output[0].status != "NoRun")
+    - (winget_result.output[0].status != "PackageNotInstalled")
+    - (winget_result.output[0].status != "NoApplicableUpgrade")
+  failed_when: 
+    - (winget_result.output[0].status == "NoRun")
+  become: yes
+  become_method: runas
+  become_user: "{{ user }}"
+
+- name: "Notify Reboot Required"
+  ansible.builtin.debug:
+    msg: "{{ (winget_result.output[0].reboot_required == 'True') | ternary('Reboot is required to complete installation.', 'No reboot required') }}"
+  changed_when: winget_result.output[0].reboot_required == "True"
+  notify: Reboot Required

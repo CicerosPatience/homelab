@@ -1,0 +1,75 @@
+---
+# =======================================
+# Synology
+# =======================================
+
+# =======================================
+# Windows
+# =======================================
+- name: Install on Windows
+  when: '"Windows" in ansible_distribution'
+  block:
+    - name: Install or update
+      ansible.windows.win_powershell:
+        script: |
+          $app = "Syncthing.Syncthing"
+          $package = Get-WinGetPackage -Id $app
+          
+          if (-not $package) {
+            $result = Install-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+          else {
+            $result = Update-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+      register: syncthing_install_result
+      changed_when: syncthing_install_result.output[0].Status != "NoApplicableUpgrade"
+    
+    # download wrapper launcher
+
+    - name: Start syncthing
+      ansible.windows.win_powershell:
+        script: |
+          syncthing
+      changed_when: false
+
+    # setup auto-start
+    - name: Set to boot on start
+      community.windows.win_scheduled_task:
+        display_name: "TEST"
+
+    # download syncthing-tray
+    - name: Install on Windows
+      when: '"Windows" in ansible_distribution'
+      block:
+        - name: Install or update
+          ansible.windows.win_powershell:
+            script: |
+              $app = "Martchus.syncthingtray"
+              $package = Get-WinGetPackage -Id $app
+              
+              if (-not $package) {
+                $result = Install-WinGetPackage -Id $app -Source "winget" -Mode Silent
+                Write-Output $result
+              }
+              else {
+                $result = Update-WinGetPackage -Id $app -Source "winget" -Mode Silent
+                Write-Output $result
+              }
+          register: syncthing_tray_install_result
+          changed_when: syncthing_tray_install_result.output[0].Status != "NoApplicableUpgrade"
+
+    # setup auto-start
+    - name: Set to boot on start
+      community.windows.win_scheduled_task:
+        display_name: "TEST"
+  become: yes
+  become_method: runas
+  become_user: "{{ user }}"
+
+    # create sync folder
+
+# =======================================
+# Steam Deck
+# =======================================

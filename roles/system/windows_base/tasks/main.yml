@@ -1,13 +1,35 @@
+# =====================================================================
+# DNS Configurations
+# =====================================================================
 - name: Set the computer hostname
   win_hostname:
     name: "{{ hostname }}"
   notify: Reboot Windows
 
+- name: Ensure DNS global suffix list is set
+  ansible.windows.win_powershell:
+    script: |
+      $result = @{
+        changed = $false
+      }
+
+      $suffixes = @("olympus")
+      $current = (Get-DnsClientGlobalSetting).SuffixSearchList
+
+      if (-not (Compare-Object $suffixes $current)) {
+          Set-DnsClientGlobalSetting -SuffixSearchList $suffixes
+          $result.changed = $true
+      }
+
+      Write-Output $result
+  register: windows_base_set_dns_suffix_list_result
+  changed_when: windows_base_set_dns_suffix_list_result.output[0].changed == "true"
+
 - name: Rename user
   ansible.windows.win_powershell:
     script: |
-      $oldUsername = "{{ item.old_username }}"
-      $newUsername = "{{ item.new_username }}"
+      $oldUsername = "{{ item.renamed_from }}"
+      $newUsername = "{{ item.username }}"
 
       $oldUser = Get-LocalUser -Name $oldUsername -ErrorAction SilentlyContinue
       $newUser = Get-LocalUser -Name $newUsername -ErrorAction SilentlyContinue
@@ -26,12 +48,12 @@
       }
   register: windows_base_rename_user_result
   changed_when: windows_base_rename_user_result.output[0].renamed == "true"
-  loop: "{{ users_to_rename }}"
+  loop: "{{ users }}"
   notify: Reboot Windows
 
-#========================================================
-# DANGER: NEEDS MANUAL VALIDATION
-#=========================================================
+# =====================================================================
+# DANGER WILL ROBINSON -> NEEDS MANUAL VALIDATION
+# =====================================================================
 
 # - name: Get profile facts
 #   ansible.windows.win_powershell:
@@ -95,25 +117,18 @@
 #   check_mode: true
 #   notify: Reboot Windows
 
-#========================================================
+# =====================================================================
 # END OF DANGER
-#=========================================================
+# =====================================================================
 
-- name: Ensure DNS global suffix list is set
-  ansible.windows.win_powershell:
-    script: |
-      $result = @{
-        changed = $false
-      }
 
-      $suffixes = @("olympus")
-      $current = (Get-DnsClientGlobalSetting).SuffixSearchList
 
-      if (-not (Compare-Object $suffixes $current)) {
-          Set-DnsClientGlobalSetting -SuffixSearchList $suffixes
-          $result.changed = $true
-      }
+# =====================================================================
+# Configure PSModules
+# =====================================================================
 
-      Write-Output $result
-  register: windows_base_set_dns_suffix_list_result
-  changed_when: windows_base_set_dns_suffix_list_result.output[0].changed == "true"
+- name: Install WinGet PSModule
+  ansible.windows.win_psmodule:
+    name: Microsoft.WinGet.Client
+    accept_license: true
+    state: latest
