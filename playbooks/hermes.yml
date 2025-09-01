@@ -7,6 +7,13 @@
   - role: system/windows_base
     vars:
       hostname: Hermes
-      users_to_rename:
-      - old_username: 'astyv'
-        new_username: 'andrew'
+      users:
+      - username: 'andrew'
+        renamed_from: 'astyv'
+        groups:
+          - Administrators
+      - username: 'clarissa'
+        renamed_from: 'clari'
+  - role: apps/syncthing_windows
+    vars:
+      user: andrew
