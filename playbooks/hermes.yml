@@ -12,3 +12,8 @@
         renamed_from: 'astyv'
         groups:
           - Administrators
+      - username: 'clarissa'
+        renamed_from: 'clari'
+  - role: apps/syncthing_windows
+    vars:
+      user: andrew
