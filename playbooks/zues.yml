@@ -69,6 +69,11 @@
       user: andrew
       id: Sidero.talosctl
       state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: AgileBits.1Password
+      state: present
 
 
 
