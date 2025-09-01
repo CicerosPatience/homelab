@@ -124,6 +124,11 @@
 # END OF DANGER
 # =====================================================================
 
+# force a reboot here if neccessary
+# some tasks downstream expect the correct (new) username
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
 # =====================================================================
 # Configure PSModules
 # =====================================================================
@@ -133,3 +138,36 @@
     name: Microsoft.WinGet.Client
     accept_license: true
     state: latest
+
+# =====================================================================
+# Set Explorer Configuration
+# =====================================================================
+
+- import_tasks: explorer.yml
+  vars:
+    user: "{{ current_user.username }}"
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: current_user
+
+# =====================================================================
+# Configure Taskbar
+# =====================================================================
+
+- import_tasks: taskbar.yml
+  vars:
+    user: "{{ current_user.username }}"
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: current_user
+
+# =====================================================================
+# Configure Start Menu
+# =====================================================================
+
+- import_tasks: start_menu.yml
+  vars:
+    user: "{{ current_user.username }}"
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: current_user

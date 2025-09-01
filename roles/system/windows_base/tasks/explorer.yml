@@ -1,0 +1,26 @@
+---
+- name: Configure Explorer
+  become: yes
+  become_method: runas
+  become_user: "{{ user }}"
+  block:
+  - name: "Show/Hide file extension in file names."
+    ansible.windows.win_regedit:
+      path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      name: HideFileExt
+      data: "{{ item.explorer.show_file_ext | default(true) | ternary(0, 1) }}"
+      type: dword
+
+  - name: "Show/Hide file extension in file names."
+    ansible.windows.win_regedit:
+      path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      name: Hidden
+      data: "{{ item.explorer.show_hidden_files | default(false) | ternary(1, 0) }}"
+      type: dword
+
+  - name: "Show/Hide file extension in file names."
+    ansible.windows.win_regedit:
+      path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      name: Hidden
+      data: "{{ item.explorer.show_hidden_operating_system_files | default(false) | ternary(1, 0) }}"
+      type: dword
