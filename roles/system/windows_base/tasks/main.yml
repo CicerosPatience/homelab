@@ -134,7 +134,7 @@
 # =====================================================================
 
 - name: Install WinGet PSModule
-  ansible.windows.win_psmodule:
+  community.windows.win_psmodule:
     name: Microsoft.WinGet.Client
     accept_license: true
     state: latest
