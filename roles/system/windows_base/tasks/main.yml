@@ -143,7 +143,7 @@
 # Set Explorer Configuration
 # =====================================================================
 
-- import_tasks: explorer.yml
+- include_tasks: explorer.yml
   vars:
     user: "{{ current_user.username }}"
   loop: "{{ users }}"
@@ -154,7 +154,7 @@
 # Configure Taskbar
 # =====================================================================
 
-- import_tasks: taskbar.yml
+- include_tasks: taskbar.yml
   vars:
     user: "{{ current_user.username }}"
   loop: "{{ users }}"
@@ -165,7 +165,7 @@
 # Configure Start Menu
 # =====================================================================
 
-- import_tasks: start_menu.yml
+- include_tasks: start_menu.yml
   vars:
     user: "{{ current_user.username }}"
   loop: "{{ users }}"
