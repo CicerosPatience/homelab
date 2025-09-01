@@ -14,4 +14,4 @@
           - Administrators
   - role: apps/syncthing_windows
     vars:
-      version: latest
+      user: andrew
