@@ -16,7 +16,7 @@
           show_hidden_files: true
           show_file_ext: true
           show_hidden_operating_system_files: false
-  - role: apps/syncthing_windows
+  - role: apps/syncthing
     vars:
       user: andrew
   - role: apps/winget
