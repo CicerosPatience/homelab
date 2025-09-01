@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.Enumeration;
 
 var arguments = Environment.GetCommandLineArgs();
 
@@ -9,18 +10,20 @@ if (arguments.Length < 2)
 }
 
 string program = Path.GetFullPath(arguments[1]);
+arguments = arguments[2..];
 
 if (!File.Exists(program))
 {
-    Console.Error.WriteLine($"Executable not found: {program}");
-    Environment.Exit(-1);
+    // asummwe the command is in PATH
+    program = "cmd.exe";
+    arguments = arguments.Prepend("syncthing").ToArray();
 }
 
 var processInfo = new ProcessStartInfo
 {
     FileName = program,
     WorkingDirectory = Path.GetDirectoryName(program),
-    Arguments = string.Join(" ", arguments[2..]),
+    Arguments = string.Join(" ", arguments),
     CreateNoWindow = arguments.Contains("--no-console"),
     WindowStyle = ProcessWindowStyle.Hidden,
     UseShellExecute = false

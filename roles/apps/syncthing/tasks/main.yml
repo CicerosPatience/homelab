@@ -26,18 +26,38 @@
       register: syncthing_install_result
       changed_when: syncthing_install_result.output[0].Status != "NoApplicableUpgrade"
     
-    # download wrapper launcher
+    # download and install windows launcher
+    # this is a fix for https://github.com/syncthing/syncthing/issues/8046
+    - name: Download Windows launcher
+      ansible.windows.win_get_url:
+        url: https://github.com/CicerosPatience/homelab/releases/download/v0.0.1/syncthing-windows-launcher-v0.0.1.zip
+        dest: '%temp%\syncthing-windows-launcher.zip'
+
+    - name: Extract Windows launcher
+      community.windows.win_unzip:
+        src: '%temp%\syncthing-windows-launcher.zip'
+        dest: '%appdata%\syncthing-windows-launcher'
+        delete_archive: yes
 
     - name: Start syncthing
       ansible.windows.win_powershell:
         script: |
-          syncthing
+          & '%appdata%\syncthing-windows-launcher\syncthing-windows-launcher.exe' syncthing --no-console --no-browser
       changed_when: false
 
     # setup auto-start
     - name: Set to boot on start
       community.windows.win_scheduled_task:
-        display_name: "TEST"
+        name: "{{ user }} Syncthing Start on Boot Task"
+        display_name: ansible
+        enabled: true
+        triggers:
+          - type: boot
+            enabled: true
+        username: "{{ user }}"
+        actions:
+          - path: '%appdata%\syncthing-windows-launcher\syncthing-windows-launcher.exe'
+            arguements: syncthing --no-console --no-browser
 
     # download syncthing-tray
     - name: Install on Windows
@@ -59,11 +79,6 @@
               }
           register: syncthing_tray_install_result
           changed_when: syncthing_tray_install_result.output[0].Status != "NoApplicableUpgrade"
-
-    # setup auto-start
-    - name: Set to boot on start
-      community.windows.win_scheduled_task:
-        display_name: "TEST"
   become: yes
   become_method: runas
   become_user: "{{ user }}"

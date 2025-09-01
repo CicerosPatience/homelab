@@ -1,6 +1,8 @@
+---
 # =====================================================================
 # DNS Configurations
 # =====================================================================
+
 - name: Set the computer hostname
   win_hostname:
     name: "{{ hostname }}"
@@ -48,6 +50,7 @@
       }
   register: windows_base_rename_user_result
   changed_when: windows_base_rename_user_result.output[0].renamed == "true"
+  when: "{{ (item.renamed_from | default('')) != '' }}"
   loop: "{{ users }}"
   notify: Reboot Windows
 
@@ -120,8 +123,6 @@
 # =====================================================================
 # END OF DANGER
 # =====================================================================
-
-
 
 # =====================================================================
 # Configure PSModules
