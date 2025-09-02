@@ -17,7 +17,9 @@
       paths:
         - '{{ user_path | trim }}\Desktop'
         - '{{ user_path | trim }}\OneDrive\Desktop'
-      patterns: "*.lnk"
+      patterns: 
+        - "*.lnk"
+        - "*.url"
     vars:
       user_path: "{{ cleanup_desktop_user_home_path.output[0] }} "
     register: shortcuts
