@@ -41,8 +41,9 @@
 
 - name: Install Windows updates.
   ansible.windows.win_updates:
-    category_names: "{{ update_categories | default(omit) }}"
+    category_names: "{{ update.categories | default(omit) }}"
     reboot: true
     reboot_timeout: 3600
   register: update_result
   until: update_result.found_update_count == 0
+  when: "{{ update.install_updates }}"
