@@ -2,6 +2,7 @@
 # =====================================================================
 # Cleanup Desktop
 # =====================================================================
+
 - name: Get Public shortcuts.
   ansible.windows.win_find:
     paths:
@@ -23,6 +24,8 @@
 - include_tasks: user_desktop_cleanup.yml
   vars:
     user: "{{ current_user.username }}"
+    remove_shortcuts: "{{ current_user.desktop.remove_shortcuts }}"
+    remove_spotlight_icon: "{{ current_user.desktop.remove_spotlight_icon }}"
   loop: "{{ users }}"
   loop_control:
     loop_var: current_user
@@ -31,6 +34,7 @@
 # =====================================================================
 # Update Windows
 # =====================================================================
+
 - name: Check for missing updates.
   ansible.windows.win_updates:
     state: searched
@@ -38,6 +42,7 @@
 - name: Install Windows updates.
   ansible.windows.win_updates:
     category_names: "{{ update_categories | default(omit) }}"
-    reboot: "{{ windows_updates_reboot | default(false) }}"
+    reboot: true
+    reboot_timeout: 3600
   register: update_result
   until: update_result.found_update_count == 0

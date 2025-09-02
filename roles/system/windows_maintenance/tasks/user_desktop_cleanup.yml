@@ -31,4 +31,14 @@
       path: "{{ item.path }}"
       state: absent
     loop: "{{ shortcuts.files | unique }}"
-    when: shortcuts.files | length > 0
+    when: 
+      - remove_shortcuts
+      - shortcuts.files | length > 0
+
+  - name: Remove the “Learn more about this picture” icon in Spotlight mode
+    ansible.windows.win_regedit:
+      path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel
+      name: "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}"
+      data: "{{ remove_spotlight_icon | ternary(1, 0) }}"
+      type: dword
+      state: present

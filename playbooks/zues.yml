@@ -16,6 +16,16 @@
           show_hidden_files: true
           show_file_ext: true
           show_hidden_operating_system_files: false
+  - role: system/windows_maintenance
+    vars:
+      update_categories:
+      - CriticalUpdates
+      - SecurityUpdates
+      users:
+      - username: andrew
+        desktop:
+          remove_shortcuts: true
+          remove_spotlight_icon: true
   - role: apps/syncthing
     vars:
       user: andrew
