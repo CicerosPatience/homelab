@@ -1,0 +1,19 @@
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker:1.42.1.10060-4e8b05daf
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    network_mode: host
+    volumes:
+      - ${APPDATA_LOCATION}/plex/config:/config
+      - ${MEDIA_LOCATION}:/data
+      - /dev/shm/plex/transcode:/transcode
+    deploy:
+     resources:
+       reservations:
+         devices:
+           - driver: nvidia
+             count: 1
+             capabilities: [gpu]
