@@ -1,0 +1,32 @@
+---
+- name: Cleanup Desktop
+  become: yes
+  become_method: runas
+  become_user: "{{ user }}"
+  block:
+  - name: Get user profile path.
+    ansible.windows.win_powershell:
+      script: |
+        Write-Output $HOME
+    register: cleanup_desktop_user_home_path
+    changed_when: false
+    check_mode: false
+
+  - name: Get shortcuts.
+    ansible.windows.win_find:
+      paths:
+        - '{{ user_path | trim }}\Desktop'
+        - '{{ user_path | trim }}\OneDrive\Desktop'
+      patterns: "*.lnk"
+    vars:
+      user_path: "{{ cleanup_desktop_user_home_path.output[0] }} "
+    register: shortcuts
+    changed_when: false
+    check_mode: false
+  
+  - name: Remove shortcuts from the Desktop.
+    ansible.windows.win_file:
+      path: "{{ item.path }}"
+      state: absent
+    loop: "{{ shortcuts.files | unique }}"
+    when: shortcuts.files | length > 0
