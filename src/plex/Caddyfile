@@ -9,7 +9,7 @@ plex.{env.DOMAIN_NAME} {
 
     reverse_proxy {env.CLUSTER_IP}:{env.PLEX_PORT}
     
-    encode gzip zstd
+    encode gzip
 
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
