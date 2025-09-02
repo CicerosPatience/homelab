@@ -4,6 +4,8 @@ services:
     image: plexinc/pms-docker:1.42.1.10060-4e8b05daf
     restart: unless-stopped
     environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=${TZ}
     network_mode: host
     volumes:
