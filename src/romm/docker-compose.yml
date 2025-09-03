@@ -6,7 +6,7 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
       MARIADB_DATABASE: romm
-      MARIADB_USER: romm-user
+      MARIADB_USER: ${MARIADB_USER}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
@@ -19,13 +19,13 @@ services:
       retries: 5
 
   romm:
-    image: rommapp/romm:latest
+    image: rommapp/romm:4.0.1
     container_name: romm
     restart: unless-stopped
     environment:
       DB_HOST: romm-db
       DB_NAME: romm
-      DB_USER: romm-user
+      DB_USER: ${MARIADB_USER}
       DB_PASSWD: ${MARIADB_PASSWORD}
       ROMM_AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
       IGDB_CLIENT_ID: u66kwnyvkxtyb5y9d9v1olnrymz1d6
@@ -34,6 +34,7 @@ services:
       SCREENSCRAPER_PASSWORD: ${SCREENSCRAPER_PASSWORD}
       RETROACHIEVEMENTS_API_KEY: ${RETROACHIEVEMENTS_API_KEY}
       STEAMGRIDDB_API_KEY: ${STEAMGRIDDB_API_KEY}
+      HASHEOUS_API_ENABLED: true
       OIDC_ENABLED: true
       OIDC_PROVIDER: Authentik
       OIDC_CLIENT_ID: rw7NEhIIx6OQ6uGYhRzmuNRm73F48IQrCp0EaQFx
