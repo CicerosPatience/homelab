@@ -1,0 +1,64 @@
+services:
+  romm-db:
+    image: mariadb:latest
+    container_name: romm_db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: romm
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ CMD, healthcheck.sh, --connect, --innodb_initialized ]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  romm:
+    image: rommapp/romm:4.0.1
+    container_name: romm
+    restart: unless-stopped
+    environment:
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: ${MARIADB_USER}
+      DB_PASSWD: ${MARIADB_PASSWORD}
+      ROMM_AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      IGDB_CLIENT_ID: u66kwnyvkxtyb5y9d9v1olnrymz1d6
+      IGDB_CLIENT_SECRET: ${IGDB_CLIENT_SECRET}
+      SCREENSCRAPER_USER: CicerosPatience
+      SCREENSCRAPER_PASSWORD: ${SCREENSCRAPER_PASSWORD}
+      RETROACHIEVEMENTS_API_KEY: ${RETROACHIEVEMENTS_API_KEY}
+      STEAMGRIDDB_API_KEY: ${STEAMGRIDDB_API_KEY}
+      HASHEOUS_API_ENABLED: true
+      OIDC_ENABLED: true
+      OIDC_PROVIDER: Authentik
+      OIDC_CLIENT_ID: rw7NEhIIx6OQ6uGYhRzmuNRm73F48IQrCp0EaQFx
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_REDIRECT_URI: ${OIDC_REDIRECT_URI}
+      OIDC_SERVER_APPLICATION_URL: ${OIDC_SERVER_APPLICATION_URL}
+    volumes:
+      - ${APPDATA_LOCATION}/romm/resources:/romm/resources
+      - ${APPDATA_LOCATION}/romm/redis:/redis-data
+      - ${MEDIA_LOCATION}/games:/romm/library
+      - ${APPDATA_LOCATION}/romm/assets:/romm/assets
+      - ${APPDATA_LOCATION}/romm/config:/romm/config
+    ports:
+      - 7456:8080
+    depends_on:
+      romm-db:
+        condition: service_healthy
+        restart: true
+
+volumes:
+  mysql_data: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/romm/mariadb
+  
