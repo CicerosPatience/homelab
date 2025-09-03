@@ -4,6 +4,7 @@
   gather_facts: true
 
   roles:
+  # system configuration
   - role: system/windows_base
     vars:
       hostname: Zues
@@ -16,6 +17,19 @@
           show_hidden_files: true
           show_file_ext: true
           show_hidden_operating_system_files: false
+  - role: system/windows_maintenance
+    vars:
+      update:
+        install_updates: true
+        categories:
+        - CriticalUpdates
+        - SecurityUpdates
+      users:
+      - username: andrew
+        desktop:
+          remove_shortcuts: true
+          remove_spotlight_icon: true
+  # application configuration
   - role: apps/syncthing
     vars:
       user: andrew
@@ -74,6 +88,3 @@
       user: andrew
       id: AgileBits.1Password
       state: present
-
-
-
