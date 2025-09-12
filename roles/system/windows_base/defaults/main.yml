@@ -1,0 +1,10 @@
+# defaults file for roles/system/windows_base
+---
+hostname: ansible
+
+users:
+- username: 'ansible'
+  renamed_from: 'ansible'
+  groups:
+    - Administrators
+

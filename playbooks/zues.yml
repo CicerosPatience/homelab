@@ -1,0 +1,90 @@
+---
+- name: Configure Zues
+  hosts: zues
+  gather_facts: true
+
+  roles:
+  # system configuration
+  - role: system/windows_base
+    vars:
+      hostname: Zues
+      users:
+      - username: 'andrew'
+        renamed_from: 'astyv'
+        groups:
+          - Administrators
+        explorer:
+          show_hidden_files: true
+          show_file_ext: true
+          show_hidden_operating_system_files: false
+  - role: system/windows_maintenance
+    vars:
+      update:
+        install_updates: true
+        categories:
+        - CriticalUpdates
+        - SecurityUpdates
+      users:
+      - username: andrew
+        desktop:
+          remove_shortcuts: true
+          remove_spotlight_icon: true
+  # application configuration
+  - role: apps/syncthing
+    vars:
+      user: andrew
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Microsoft.VisualStudioCode
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Plex.Plexamp
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: RustDesk.RustDesk
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Spotify.Spotify
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Git.Git
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: GitHub Desktop
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: NordSecurity.NordVPN 
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Helm.Helm
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Kubernetes.kubectl
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: Sidero.talosctl
+      state: present
+  - role: apps/winget
+    vars:
+      user: andrew
+      id: AgileBits.1Password
+      state: present

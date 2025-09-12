@@ -1,0 +1,111 @@
+---
+# =======================================
+# Synology
+# =======================================
+
+# =======================================
+# Windows
+# =======================================
+- name: Install on Windows
+  when: '"Windows" in ansible_distribution'
+  block:
+    - name: Install or update Syncthing
+      ansible.windows.win_powershell:
+        script: |
+          $app = "Syncthing.Syncthing"
+          $package = Get-WinGetPackage -Id $app
+          
+          if (-not $package) {
+            $result = Install-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+          else {
+            $result = Update-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+      register: syncthing_install_result
+      changed_when: syncthing_install_result.output[0].Status != "NoApplicableUpgrade"
+    
+    # download and install windows launcher
+    # this is a fix for https://github.com/syncthing/syncthing/issues/8046
+    - name: Get latest launcher version
+      ansible.windows.win_uri:
+        url: https://api.github.com/repos/CicerosPatience/homelab/releases/latest
+        return_content: true
+      register: syncthing_launcher_latest_http_response
+
+    - name: Download Windows launcher
+      ansible.windows.win_get_url:
+        url: https://github.com/CicerosPatience/homelab/releases/download/{{ launcher_release }}/syncthing-windows-launcher-{{ launcher_version }}.zip
+        dest: '%temp%\syncthing-windows-launcher.zip'
+      vars:
+        launcher_release: "{{ syncthing_launcher_latest_http_response.json.name }}"
+        launcher_version: "{{ syncthing_launcher_latest_http_response.json.tag_name }}"
+      register: installer_download_result
+
+    - name: Extract Windows launcher
+      community.windows.win_unzip:
+        src: "{{ installer_download_result.dest }}"
+        dest: '%localappdata%\syncthing-windows-launcher'
+        delete_archive: yes
+
+    # create scheduled task and start
+    - name: Create Scheduled Task
+      community.windows.win_scheduled_task:
+        name: "{{ user }} Syncthing start on login"
+        state: present
+        display_name: ansible
+        enabled: true
+        triggers:
+          - type: logon
+            user_id: "{{ user }}"
+            enabled: true
+        username: "{{ user }}"
+        actions:
+          - path: '%localappdata%\syncthing-windows-launcher\syncthing-windows-launcher.exe'
+            arguments: syncthing --no-console --no-browser
+      register: syncthing_scheduled_task_result
+
+    - name: Start Syncthing
+      ansible.windows.win_powershell:
+        script: |
+          $output = @{
+            result = $null
+            started = $false
+          }
+
+          $output.result = syncthing cli show system
+
+          if (-not $output.result) {
+            Start-ScheduledTask -TaskName "{{ user }} Syncthing start on login"
+            $output.started = $true
+          }
+
+          Write-Output $output
+      register: syncthing_start_result
+      changed_when: syncthing_start_result.output[0].started == true
+
+    # download syncthing-tray
+    - name: Install or update SyncthingTray
+      ansible.windows.win_powershell:
+        script: |
+          $app = "Martchus.syncthingtray"
+          $package = Get-WinGetPackage -Id $app
+          
+          if (-not $package) {
+            $result = Install-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+          else {
+            $result = Update-WinGetPackage -Id $app -Source "winget" -Mode Silent
+            Write-Output $result
+          }
+      register: syncthing_tray_install_result
+      changed_when: syncthing_tray_install_result.output[0].Status != "NoApplicableUpgrade"
+  become: yes
+  become_method: runas
+  become_user: "{{ user }}"
+
+# =======================================
+# Steam Deck
+# =======================================

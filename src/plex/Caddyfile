@@ -1,0 +1,17 @@
+plex.{env.DOMAIN_NAME} {
+    header {
+        Strict-Transport-Security max-age=31536000;
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer-when-downgrade
+        X-XSS-Protection 1
+    }
+
+    reverse_proxy {env.CLUSTER_IP}:{env.PLEX_PORT}
+    
+    encode gzip
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}    

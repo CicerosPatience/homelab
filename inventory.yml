@@ -1,0 +1,10 @@
+windows:
+  hosts:
+    zues:
+      ansible_host: zues.olympus
+    hermes:
+      ansible_host: hermes.olympus
+  vars:
+    ansible_user: ansible
+    ansible_connection: ssh
+    ansible_shell_type: powershell

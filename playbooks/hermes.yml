@@ -1,0 +1,19 @@
+---
+- name: Configure Hermes
+  hosts: hermes
+  gather_facts: true
+
+  roles:
+  - role: system/windows_base
+    vars:
+      hostname: Hermes
+      users:
+      - username: 'andrew'
+        renamed_from: 'astyv'
+        groups:
+          - Administrators
+      - username: 'clarissa'
+        renamed_from: 'clari'
+  - role: apps/syncthing_windows
+    vars:
+      user: andrew

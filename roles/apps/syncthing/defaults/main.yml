@@ -1,0 +1,3 @@
+# defaults file for roles/apps/syncthing_windows
+---
+user: ansible
