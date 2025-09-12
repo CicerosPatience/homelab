@@ -50,8 +50,8 @@ services:
       AUTHENTIK_EMAIL__FROM: Authentik <${EMAIL_USERNAME}>
     user: root
     volumes:
-      - ${APPDATA_LOCATION}/media:/media
-      - ${APPDATA_LOCATION}/custom-templates:/templates
+      - ${APPDATA_LOCATION}/authentik/media:/media
+      - ${APPDATA_LOCATION}/authentik/custom-templates:/templates
     ports:
       - ${EXPOSE_PORT}:9000
     depends_on:
@@ -74,9 +74,9 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
     user: root
     volumes:
-      - ${APPDATA_LOCATION}/media:/media
-      - ${APPDATA_LOCATION}/certs:/certs
-      - ${APPDATA_LOCATION}/custom-templates:/templates
+      - ${APPDATA_LOCATION}/authentik/media:/media
+      - ${APPDATA_LOCATION}/authentik/certs:/certs
+      - ${APPDATA_LOCATION}/authentik/custom-templates:/templates
     depends_on:
       postgresql:
         condition: service_healthy
@@ -89,10 +89,10 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${APPDATA_LOCATION}/postgres
+      device: ${APPDATA_LOCATION}/authentik/postgres
   redis:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: ${APPDATA_LOCATION}/redis
+      device: ${APPDATA_LOCATION}/authentik/redis
