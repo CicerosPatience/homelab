@@ -1,0 +1,16 @@
+services:
+  homeassistant:
+    image: homeassistant/home-assistant:2025.9.1
+    container_name: home_assistant
+    mem_limit: 8g
+    cpu_shares: 768
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+     test: curl -f http://localhost:8123/ || exit 1
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${APPDATA_LOCATION}/homeassistant:/config:rw
+    environment:
+      TZ: Europe/London
