@@ -1,0 +1,16 @@
+auth.{env.DOMAIN_NAME} {
+	reverse_proxy {env.CLUSTER_IP}:7080 {
+		transport http {
+			versions 1.1 2.0
+		}
+		header_up Host {host}
+		header_up X-Forwarded-Proto {scheme}    
+		header_up X-Forwarded-For {remote}
+		header_up Upgrade {http.request.header.Upgrade}
+		header_up Connection {http.request.header.Connection}
+	}
+
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+}

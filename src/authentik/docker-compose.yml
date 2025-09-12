@@ -1,0 +1,98 @@
+services:
+  postgresql:
+    image: docker.io/library/postgres:16-alpine
+    container_name: authentik_postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_DB: ${PG_DB}
+
+  redis:
+    image: docker.io/library/redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - redis:/data
+
+  server:
+    image: ghcr.io/goauthentik/server:2025.6.4
+    container_name: authentik
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+      AUTHENTIK_EMAIL__PORT: ${EMAIL_PORT}
+      AUTHENTIK_EMAIL__USERNAME: ${EMAIL_USERNAME}
+      AUTHENTIK_EMAIL__PASSWORD: ${EMAIL_PASSWORD}
+      AUTHENTIK_EMAIL__USE_TLS: true
+      AUTHENTIK_EMAIL__TIMEOUT: 10
+      AUTHENTIK_EMAIL__FROM: Authentik <${EMAIL_USERNAME}>
+    user: root
+    volumes:
+      - ${APPDATA_LOCATION}/authentik/media:/media
+      - ${APPDATA_LOCATION}/authentik/custom-templates:/templates
+    ports:
+      - ${EXPOSE_PORT}:9000
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    image: ghcr.io/goauthentik/server:2025.6.4
+    container_name: authentik_worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+    user: root
+    volumes:
+      - ${APPDATA_LOCATION}/authentik/media:/media
+      - ${APPDATA_LOCATION}/authentik/certs:/certs
+      - ${APPDATA_LOCATION}/authentik/custom-templates:/templates
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  database:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/authentik/postgres
+  redis:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ${APPDATA_LOCATION}/authentik/redis
