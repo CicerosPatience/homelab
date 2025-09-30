@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/seanmorley15/adventurelog-frontend:v0.10.0
+    image: ghcr.io/seanmorley15/adventurelog-frontend:v0.11.0
     container_name: adventurelog_frontend
     restart: unless-stopped
     environment:
