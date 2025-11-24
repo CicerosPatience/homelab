@@ -1,7 +1,7 @@
 services:
   audiobookshelf:
     container_name: audiobookshelf
-    image: advplyr/audiobookshelf:2.29.0
+    image: advplyr/audiobookshelf:2.30.0
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 80 || exit 1"]
       interval: 10s
