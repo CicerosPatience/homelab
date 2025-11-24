@@ -1,5 +1,5 @@
 budget.{env.DOMAIN_NAME} {
-    reverse_proxy {env.CLUSTER_IP}:{env.ACTUAL_BUDGET_PORT}
+    reverse_proxy {env.CLUSTER_IP}:8304
 
     encode gzip
 

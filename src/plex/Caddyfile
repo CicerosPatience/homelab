@@ -7,7 +7,7 @@ plex.{env.DOMAIN_NAME} {
         X-XSS-Protection 1
     }
 
-    reverse_proxy {env.CLUSTER_IP}:{env.PLEX_PORT}
+    reverse_proxy {env.CLUSTER_IP}:32400
     
     encode gzip
 
