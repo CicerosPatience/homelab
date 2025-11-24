@@ -1,5 +1,5 @@
 audiobookshelf.{env.DOMAIN_NAME} {
-    reverse_proxy {env.CLUSTER_IP}:{env.AUDIOBOOKSHELF_PORT}
+    reverse_proxy {env.CLUSTER_IP}:13378
 
     encode gzip
 

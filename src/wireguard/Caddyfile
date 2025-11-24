@@ -1,5 +1,5 @@
 vpndash.{env.DOMAIN_NAME} {
-    reverse_proxy {env.WIREGUARD_IP}:{env.WIREGUARD_DASHBOARD_PORT}
+    reverse_proxy {env.WIREGUARD_IP}:10086
 
     encode gzip
 
