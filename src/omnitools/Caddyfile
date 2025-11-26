@@ -1,0 +1,9 @@
+omnitools.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:5021
+
+    encode gzip
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
