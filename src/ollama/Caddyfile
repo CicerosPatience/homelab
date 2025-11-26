@@ -1,0 +1,24 @@
+ollama.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:8271
+
+    encode gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+    }
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
+
+api.ollama.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:11434
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
