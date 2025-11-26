@@ -1,0 +1,18 @@
+pbs.{env.DOMAIN_NAME} {
+    reverse_proxy {env.PBS_IP}:8007 {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+
+    header {
+        # Required by Proxmox GUI to allow iframe and JS to work properly
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+    }
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
