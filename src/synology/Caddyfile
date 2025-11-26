@@ -1,0 +1,19 @@
+dsm.{env.DOMAIN_NAME} {
+    reverse_proxy {env.NAS_IP}:5001 {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+
+    header {
+        # Security headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "same-origin"
+    }
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
