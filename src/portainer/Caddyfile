@@ -9,3 +9,11 @@ portainer.{env.DOMAIN_NAME} {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
 }
+
+whoami.portainer.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:2001
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
