@@ -1,0 +1,9 @@
+karakeep.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:3022
+
+    encode gzip
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
