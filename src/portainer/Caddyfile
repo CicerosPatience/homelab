@@ -1,0 +1,19 @@
+portainer.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:9443 {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
+
+whoami.portainer.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:2001
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}

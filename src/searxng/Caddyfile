@@ -1,0 +1,16 @@
+search.{env.DOMAIN_NAME} {
+    reverse_proxy {env.CLUSTER_IP}:5147
+
+    encode gzip
+
+    header {
+        # Security headers
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+    }
+
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+}
