@@ -1,6 +1,6 @@
 services:
   syncthing:
-    image: syncthing/syncthing:2.0.11
+    image: syncthing/syncthing:2.0.14
     container_name: syncthing
     network_mode: host
     environment:
