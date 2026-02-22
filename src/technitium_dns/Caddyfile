@@ -1,5 +1,5 @@
 dns.{env.DOMAIN_NAME} {
-    reverse_proxy {env.TECHNITIUM_DNS_IP}:80
+    reverse_proxy {env.TECHNITIUM_DNS_IP}:5380
 
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
