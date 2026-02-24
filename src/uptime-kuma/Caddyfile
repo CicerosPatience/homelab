@@ -15,8 +15,7 @@ uptimekuma.{env.DOMAIN_NAME} {
 }
 
 status.{env.DOMAIN_NAME} {
-    reverse_proxy uptimekuma.{env.DOMAIN_NAME}
-    rewrite /status
+    reverse_proxy {env.CLUSTER_IP}:3001
 
     header {
         X-Frame-Options "SAMEORIGIN"
