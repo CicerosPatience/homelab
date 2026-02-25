@@ -50,7 +50,7 @@ services:
       AUTHENTIK_EMAIL__FROM: Authentik <${EMAIL_USERNAME}>
     user: root
     volumes:
-      - ${APPDATA_LOCATION}/authentik/media:/media
+      - ${APPDATA_LOCATION}/authentik/data:/data
       - ${APPDATA_LOCATION}/authentik/custom-templates:/templates
     ports:
       - ${EXPOSE_PORT}:9000
