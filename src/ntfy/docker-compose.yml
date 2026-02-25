@@ -5,7 +5,7 @@ services:
     command:
       - serve
     environment:
-      - TZ=UTC
+      - TZ=Europe/London
     volumes:
       - ${APPDATA_LOCATION}/ntfy/cache:/var/cache/ntfy
       - ${APPDATA_LOCATION}/ntfy/config:/etc/ntfy
