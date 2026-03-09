@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:18
+    container_name: forgejo-db
+    hostname: forgejo-db
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "forgejo", "-U", "${FORGEJO_DB_USER}"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    volumes:
+      - ${APPDATA_LOCATION}/forgejo/db:/var/lib/postgresql:rw
+    environment:
+      - POSTGRES_DB=forgejo
+      - POSTGRES_USER=${FORGEJO_DB_USER}
+      - POSTGRES_PASSWORD=${FORGEJO_DB_PASSWORD}
+    restart: on-failure:5
+
+  server:
+    image: codeberg.org/forgejo/forgejo:14.0.3
+    container_name: Forgejo
+    hostname: forgejo
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000
+    ports:
+      - 3053:3000
+      - 2222:22
+    volumes:
+      - ${APPDATA_LOCATION}/forgejo/data:/data:rw
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=forgejo-db:5432
+      - FORGEJO__database__NAME=forgejo
+      - FORGEJO__database__USER=${FORGEJO_DB_USER}
+      - FORGEJO__database__PASSWD=${FORGEJO_DB_PASSWORD}
+      - ROOT_URL=https://forge.${DOMAIN}
+    restart: on-failure:5
