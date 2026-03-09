@@ -20,7 +20,7 @@ services:
 
   server:
     image: codeberg.org/forgejo/forgejo:14.0.3
-    container_name: Forgejo
+    container_name: forgejo
     hostname: forgejo
     security_opt:
       - no-new-privileges:true
