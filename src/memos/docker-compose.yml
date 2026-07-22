@@ -1,0 +1,13 @@
+services:
+  memos:
+    image: neosmemo/memos:0.29.1
+    container_name: memos
+    restart: unless-stopped
+    ports:
+      - "5230:5230"
+    volumes:
+      - ${APPDATA_LOCATION}:/var/opt/memos
+    environment:
+      MEMOS_PORT: 5230
+      MEMOS_DRIVER: sqlite
+      MEMOS_INSTANCE_URL: https://memos.${DOMAIN}
