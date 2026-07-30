@@ -19,7 +19,7 @@ services:
     restart: on-failure:5
 
   server:
-    image: codeberg.org/forgejo/forgejo:15.0.2
+    image: codeberg.org/forgejo/forgejo:16.0.1
     container_name: forgejo
     hostname: forgejo
     security_opt:
