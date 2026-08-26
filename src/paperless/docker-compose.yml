@@ -35,6 +35,8 @@ services:
       PAPERLESS_SECRET_KEY: ${SECRET_KEY}
       USERMAP_UID: ${PUID}
       USERMAP_GID: ${PGID}
+      PAPERLESS_URL: https://${DOMAIN_NAME}
+      PAPERLESS_CSRF_TRUSTED_ORIGINS: https://${DOMAIN_NAME}
 
 
 volumes:
