@@ -1,7 +1,7 @@
 services:
   navidrome:
     image: deluan/navidrome:0.63.2
-    user: 1000:1000
+    user: ${PUID}:${PGID}
     ports:
       - 26856:4533
     restart: unless-stopped
