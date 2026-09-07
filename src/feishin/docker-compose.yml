@@ -1,0 +1,15 @@
+services:
+  feishin:
+    container_name: feishin
+    image: "ghcr.io/jeffvli/feishin:1.15.1"
+    restart: unless-stopped
+    environment:
+        - SERVER_NAME=Nephele
+        - SERVER_LOCK=false
+        - SERVER_TYPE=navidrome
+        - SERVER_URL=https://navidrome.${DOMAIN_NAME}
+        - REMOTE_URL=https://music.${DOMAIN_NAME}
+        - LEGACY_AUTHENTICATION=false
+        - ANALYTICS_DISABLED=true
+    ports:
+        - 47079:9180
